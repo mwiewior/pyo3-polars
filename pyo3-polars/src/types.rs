@@ -513,7 +513,7 @@ impl<'py> FromPyObject<'py> for PyDataType {
         let py = ob.py();
         let type_name = ob.get_type().qualname()?;
 
-        let dtype = match type_name.as_ref() {
+        let dtype = match type_name.to_string().as_str() {
             "DataTypeClass" => {
                 // just the class, not an object
                 let name = ob
