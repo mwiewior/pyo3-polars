@@ -20,7 +20,7 @@ polars-core = { git = "https://github.com/mwiewior/polars.git", branch = "feat/a
 polars-ffi = { git = "https://github.com/mwiewior/polars.git" , branch = "feat/anonymous-scan-stream"}
 polars-plan = { git = "https://github.com/mwiewior/polars.git" , branch = "feat/anonymous-scan-stream"}
 polars-lazy = { git = "https://github.com/mwiewior/polars.git" , branch = "feat/anonymous-scan-stream"}
-
+ciborium = {git = "https://github.com/enarx/ciborium.git", rev = "f3671472f80a67008f2f90ef33b185d8d81d703d"}
 
 [workspace.dependencies.arrow]
 package = "polars-arrow"
