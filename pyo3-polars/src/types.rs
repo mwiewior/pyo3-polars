@@ -326,7 +326,7 @@ impl IntoPy<PyObject> for PyLazyFrame {
         let mut writer: Vec<u8> = vec![];
         ciborium::ser::into_writer(&self.0.logical_plan, &mut writer).unwrap();
 
-        instance.call_method1("__setstate__", (&*writer,)).unwrap();
+        // instance.call_method1("__setstate__", (&*writer,)).unwrap();
         instance.into_py(py)
     }
 }
