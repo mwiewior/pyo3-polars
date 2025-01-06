@@ -9,11 +9,19 @@ members = [
 ]
 
 [workspace.dependencies]
-polars = { version = "0.45.0", default-features = false }
-polars-core = { version = "0.45.0", default-features = false }
-polars-ffi = { version = "0.45.0", default-features = false }
-polars-plan = { version = "0.45.0", default-features = false }
-polars-lazy = { version = "0.45.0", default-features = false }
+#polars = { version = "0.45.0", default-features = false }
+#polars-core = { version = "0.45.0", default-features = false }
+#polars-ffi = { version = "0.45.0", default-features = false }
+#polars-plan = { version = "0.45.0", default-features = false }
+#polars-lazy = { version = "0.45.0", default-features = false }
+
+polars = { git = "https://github.com/mwiewior/polars.git" , rev = "9d4fca54b1d71fce08a51cf00a88f67c67313706" }
+polars-core = { git = "https://github.com/mwiewior/polars.git", rev = "9d4fca54b1d71fce08a51cf00a88f67c67313706" }
+polars-ffi = { git = "https://github.com/mwiewior/polars.git" , rev = "9d4fca54b1d71fce08a51cf00a88f67c67313706"}
+polars-plan = { git = "https://github.com/mwiewior/polars.git" , rev = "9d4fca54b1d71fce08a51cf00a88f67c67313706"}
+polars-lazy = { git = "https://github.com/mwiewior/polars.git" , rev = "9d4fca54b1d71fce08a51cf00a88f67c67313706", features = ["streaming", "serde"]}
+#minicbor = { version = "0.25.1", features = ["full"] }
+minicbor-serde = "0.3.2"
 
 [workspace.dependencies.arrow]
 package = "polars-arrow"
