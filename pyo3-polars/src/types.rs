@@ -19,6 +19,10 @@ use pyo3::pybacked::PyBackedStr;
 use pyo3::types::PyDict;
 #[cfg(feature = "dtype-struct")]
 use pyo3::types::PyList;
+// use serde::Serialize;
+use polars_core::export::serde::Serialize;
+use polars_core::export::serde::Deserialize;
+
 
 #[cfg(feature = "dtype-categorical")]
 pub(crate) fn get_series(obj: &Bound<'_, PyAny>) -> PyResult<Series> {
@@ -205,12 +209,18 @@ impl<'a> FromPyObject<'a> for PyDataFrame {
 impl<'a> FromPyObject<'a> for PyLazyFrame {
     fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
         let s = ob.call_method0("__getstate__")?.extract::<Vec<u8>>()?;
-
-        let lp: DslPlan = minicbor::decode(&*s)?.map_err(
-            |e| PyPolarsErr::Other(
-                format!("Error when deserializing LazyFrame. This may be due to mismatched polars versions. {}", e)
-            )
-        )?;
+        let mut de = minicbor_serde::Deserializer::new(&s);
+        let lp: DslPlan = DslPlan::deserialize(&mut de).map_err(
+                    |e| PyPolarsErr::Other(
+                        format!("Error when deserializing LazyFrame. This may be due to mismatched polars versions. {}", e)
+                    )
+                )?;
+        // let mut de = minicbor_serde::Deserializer::new(&s);
+        // let lp = DslPlan::deserialize(&mut de).map_err(
+        //         |e| PyPolarsErr::Other(
+        //             format!("Error when deserializing LazyFrame. This may be due to mismatched polars versions. {}", e)
+        //         )
+        //     )?;
 
         // let lp: DslPlan = ciborium::de::from_reader(&*s).map_err(
         //     |e| PyPolarsErr::Other(
@@ -225,11 +235,18 @@ impl<'a> FromPyObject<'a> for PyLazyFrame {
 impl<'a> FromPyObject<'a> for PyExpr {
     fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
         let s = ob.call_method0("__getstate__")?.extract::<Vec<u8>>()?;
-        let e: Expr = minicbor::decode(&*s)?.map_err(
+        let mut de = minicbor_serde::Deserializer::new(&s);
+        let  e: Expr =Expr::deserialize(&mut de).map_err(
             |e| PyPolarsErr::Other(
-                format!("Error when deserializing 'Expr'. This may be due to mismatched polars versions. {}", e)
+                format!("Error when deserializing LazyFrame. This may be due to mismatched polars versions. {}", e)
             )
         )?;
+        // let mut de = minicbor_serde::Deserializer::new(&s);
+        // let e = Expr::deserialize(&mut de).map_err(
+        //     |e| PyPolarsErr::Other(
+        //         format!("Error when deserializing LazyFrame. This may be due to mismatched polars versions. {}", e)
+        //     )
+        // )?;
         // let e: Expr = ciborium::de::from_reader(&*s).map_err(
         //     |e| PyPolarsErr::Other(
         //         format!("Error when deserializing 'Expr'. This may be due to mismatched polars versions. {}", e)
@@ -336,8 +353,14 @@ impl IntoPy<PyObject> for PyLazyFrame {
         let cls = polars.getattr("LazyFrame").unwrap();
         let instance = cls.call_method1(intern!(py, "__new__"), (&cls,)).unwrap();
         let mut writer: Vec<u8> = vec![];
+        let mut ser = minicbor_serde::Serializer::new(&mut writer);
+        let _ = &self.0.logical_plan.serialize(&mut ser).unwrap();
+        // writer = minicbor_serde::to_vec().unwrap();
+        // let mut ser = minicbor_serde::Serializer::new(&mut buf);
+        // &self.0.logical_plan.serialize(&mut ser).unwrap();
+
         // ciborium::ser::into_writer(&self.0.logical_plan, &mut writer).unwrap();
-        minicbor::encode(&self.0.logical_plan.into(), &mut writer).unwrap();
+
         instance.call_method1("__setstate__", (&*writer,)).unwrap();
         instance.into_py(py)
     }

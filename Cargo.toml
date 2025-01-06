@@ -20,7 +20,8 @@ polars-core = { git = "https://github.com/mwiewior/polars.git", branch = "feat/a
 polars-ffi = { git = "https://github.com/mwiewior/polars.git" , branch = "feat/anonymous-scan-stream"}
 polars-plan = { git = "https://github.com/mwiewior/polars.git" , branch = "feat/anonymous-scan-stream"}
 polars-lazy = { git = "https://github.com/mwiewior/polars.git" , branch = "feat/anonymous-scan-stream"}
-minicbor = { version = "0.25.1", features = ["full"] }
+#minicbor = { version = "0.25.1", features = ["full"] }
+minicbor-serde = "0.3.2"
 
 [workspace.dependencies.arrow]
 package = "polars-arrow"
