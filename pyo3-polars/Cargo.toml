@@ -23,6 +23,7 @@ pyo3-polars-derive = { version = "0.13.0", path = "../pyo3-polars-derive", optio
 serde = { version = "1", optional = true }
 serde-pickle = { version = "1", optional = true }
 thiserror = "1"
+minicbor = {workspace = true}
 
 [features]
 lazy = ["polars/serde-lazy", "polars-plan", "polars-lazy/serde", "ciborium"]

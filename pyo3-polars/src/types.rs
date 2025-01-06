@@ -205,11 +205,18 @@ impl<'a> FromPyObject<'a> for PyDataFrame {
 impl<'a> FromPyObject<'a> for PyLazyFrame {
     fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
         let s = ob.call_method0("__getstate__")?.extract::<Vec<u8>>()?;
-        let lp: DslPlan = ciborium::de::from_reader(&*s).map_err(
+
+        let lp: DslPlan = minicbor::decode(&*s)?.map_err(
             |e| PyPolarsErr::Other(
                 format!("Error when deserializing LazyFrame. This may be due to mismatched polars versions. {}", e)
             )
         )?;
+
+        // let lp: DslPlan = ciborium::de::from_reader(&*s).map_err(
+        //     |e| PyPolarsErr::Other(
+        //         format!("Error when deserializing LazyFrame. This may be due to mismatched polars versions. {}", e)
+        //     )
+        // )?;
         Ok(PyLazyFrame(LazyFrame::from(lp)))
     }
 }
@@ -218,11 +225,16 @@ impl<'a> FromPyObject<'a> for PyLazyFrame {
 impl<'a> FromPyObject<'a> for PyExpr {
     fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
         let s = ob.call_method0("__getstate__")?.extract::<Vec<u8>>()?;
-        let e: Expr = ciborium::de::from_reader(&*s).map_err(
+        let e: Expr = minicbor::decode(&*s)?.map_err(
             |e| PyPolarsErr::Other(
                 format!("Error when deserializing 'Expr'. This may be due to mismatched polars versions. {}", e)
             )
         )?;
+        // let e: Expr = ciborium::de::from_reader(&*s).map_err(
+        //     |e| PyPolarsErr::Other(
+        //         format!("Error when deserializing 'Expr'. This may be due to mismatched polars versions. {}", e)
+        //     )
+        // )?;
         Ok(PyExpr(e))
     }
 }
@@ -324,8 +336,8 @@ impl IntoPy<PyObject> for PyLazyFrame {
         let cls = polars.getattr("LazyFrame").unwrap();
         let instance = cls.call_method1(intern!(py, "__new__"), (&cls,)).unwrap();
         let mut writer: Vec<u8> = vec![];
-        ciborium::ser::into_writer(&self.0.logical_plan, &mut writer).unwrap();
-
+        // ciborium::ser::into_writer(&self.0.logical_plan, &mut writer).unwrap();
+        minicbor::encode(&self.0.logical_plan.into(), &mut writer).unwrap();
         instance.call_method1("__setstate__", (&*writer,)).unwrap();
         instance.into_py(py)
     }
